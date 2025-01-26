@@ -12,7 +12,7 @@ interface NewsCardProps {
 export const NewsCard = ({ id, title, summary, imageUrl, date, category }: NewsCardProps) => {
   return (
     <article className="news-card">
-      <Link to={`/article/${id}`}>
+      <Link to={`/article/${id}`} className="block">
         <img 
           src={imageUrl} 
           alt={title}
