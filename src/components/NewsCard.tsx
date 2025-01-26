@@ -11,7 +11,7 @@ interface NewsCardProps {
 
 export const NewsCard = ({ id, title, summary, imageUrl, date, category }: NewsCardProps) => {
   return (
-    <article className="news-card">
+    <article className="overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-md">
       <Link to={`/article/${id}`} className="block">
         <img 
           src={imageUrl} 
@@ -20,7 +20,9 @@ export const NewsCard = ({ id, title, summary, imageUrl, date, category }: NewsC
         />
         <div className="p-4">
           <div className="flex items-center space-x-2 mb-2">
-            <span className="text-secondary text-sm font-semibold">{category}</span>
+            <span className="text-sm font-semibold px-2 py-1 rounded bg-secondary/10 text-secondary">
+              {category}
+            </span>
             <span className="text-gray-500 text-sm">{date}</span>
           </div>
           <h2 className="font-merriweather text-xl font-bold mb-2 line-clamp-2">{title}</h2>

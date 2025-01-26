@@ -24,6 +24,7 @@ const App = () => (
           <Route path="/politics" element={<Index />} />
           <Route path="/business" element={<Index />} />
           <Route path="/technology" element={<Index />} />
+          <Route path="/celebration" element={<Index />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

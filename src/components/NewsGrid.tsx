@@ -1,46 +1,77 @@
 import { useLocation } from "react-router-dom";
 import { NewsCard } from "./NewsCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "./ui/skeleton";
 
-// Temporary mock data - will be replaced with database data
-const mockNews = [
-  {
-    id: "1",
-    title: "Major Economic Reform Package Announced",
-    summary: "Government unveils comprehensive economic reforms targeting growth and employment...",
-    imageUrl: "/placeholder.svg",
-    date: "2024-02-20",
-    category: "Business"
-  },
-  {
-    id: "2",
-    title: "Tech Innovation Summit Begins in Delhi",
-    summary: "Leading tech companies gather to showcase latest innovations and discuss future trends...",
-    imageUrl: "/placeholder.svg",
-    date: "2024-02-20",
-    category: "Technology"
-  },
-  {
-    id: "3",
-    title: "New Political Alliance Forms Ahead of Elections",
-    summary: "Major political parties announce coalition plans for upcoming state elections...",
-    imageUrl: "/placeholder.svg",
-    date: "2024-02-20",
-    category: "Politics"
+const fetchArticles = async (category?: string) => {
+  let query = supabase
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (category) {
+    query = query.eq('category', category);
   }
-];
+
+  const { data, error } = await query;
+  
+  if (error) throw error;
+  return data;
+};
 
 export const NewsGrid = () => {
   const location = useLocation();
   const currentPath = location.pathname.substring(1); // Remove leading slash
+  
+  const { data: articles, isLoading, error } = useQuery({
+    queryKey: ['articles', currentPath],
+    queryFn: () => fetchArticles(currentPath || undefined)
+  });
 
-  const filteredNews = currentPath && currentPath !== "/"
-    ? mockNews.filter(news => news.category.toLowerCase() === currentPath.toLowerCase())
-    : mockNews;
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="space-y-4">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        Error loading articles. Please try again later.
+      </div>
+    );
+  }
+
+  if (!articles?.length) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        No articles found in this category.
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-      {filteredNews.map((news) => (
-        <NewsCard key={news.id} {...news} />
+      {articles.map((article) => (
+        <NewsCard
+          key={article.id}
+          id={article.id}
+          title={article.title}
+          summary={article.summary}
+          imageUrl={article.imageUrl}
+          date={new Date(article.created_at).toLocaleDateString()}
+          category={article.category}
+        />
       ))}
     </div>
   );
